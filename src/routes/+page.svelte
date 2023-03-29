@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
 import './styles.css';
 import { heroIcons, iconoirIcons, featherIcons } from '$lib/icons'
-import { infiniteScrollAction } from 'svelte-legos';
+import { clickToCopyAction, infiniteScrollAction, messagesStore } from 'svelte-legos';
 import { tick } from 'svelte';
 import { matchSorter } from 'match-sorter'
+import { getComponent } from '$lib/svgToPath';
 
 let query = '';
 let currentTab = 0;
@@ -32,6 +33,14 @@ function loadMore() {
   tick().then(() => {
     isLoading = false;
   });
+}
+
+function handleCopyDone() {
+  messagesStore('Copied!')
+}
+
+function copyComponent(svg: string) {
+  return getComponent(svg);
 }
 
 </script>
@@ -74,9 +83,15 @@ function loadMore() {
     >
       {#each paginatedIcons as icon}
         <div>
-          <button class="aspect-square ring-1 ring-inset ring-gray-200 w-full rounded-xl flex items-center justify-center">
+          <button class="group relative overflow-hidden aspect-square ring-1 ring-inset ring-gray-200 w-full rounded-xl flex items-center justify-center">
             <div class="w-6 h-6">
               {@html icon.svg}
+            </div>
+
+            <div class="hidden absolute inset-0 group-hover:flex flex-col text-[11px] bg-white border border-black rounded-xl">
+              <button on:copy-done={handleCopyDone} class="flex-1 hover:bg-black hover:text-white" use:clickToCopyAction={copyComponent(icon.svg)}>Copy Component</button>
+              <hr />
+              <button on:copy-done={handleCopyDone} class="flex-1 hover:bg-black hover:text-white" use:clickToCopyAction={icon.svg}>Copy SVG</button>
             </div>
           </button>
           <div class="mt-3 truncate text-center text-[0.8125rem] leading-6 text-slate-500 font-inter font-light" title={icon.label}>
