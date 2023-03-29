@@ -3,10 +3,34 @@ import './styles.css';
 import heroIcons from '$lib/icons-outline.json';
 import featherIcons from '$lib/feather-icons.json';
 import iconoirIcons from '$lib/iconoir-icons.json';
+import { infiniteScrollAction } from 'svelte-legos';
+	import { tick } from 'svelte';
 
 let currentTab = 0;
+const perPage = 100;
+let currentPage = 0;
 
+$: {
+  currentTab;
+  currentPage = 0;
+}
 $: icons = currentTab === 0 ? heroIcons : (currentTab === 1 ? featherIcons : iconoirIcons);
+$: totalNumberOfPages = Math.ceil(icons.length / perPage)
+$: paginatedIcons = icons.slice(0, (currentPage + 1) * perPage)
+
+let isLoading = false;
+function loadMore() {
+  if (isLoading) return;
+  isLoading = true;
+  if (currentPage < totalNumberOfPages) {
+    currentPage++;
+  }
+
+  tick().then(() => {
+    isLoading = false;
+  });
+}
+
 </script>
 
 <svelte:head>
@@ -44,8 +68,11 @@ $: icons = currentTab === 0 ? heroIcons : (currentTab === 1 ? featherIcons : ico
       <input class="w-full py-4 outline-none font-lexend font-light" placeholder="Seach for icons" />
     </div>
 
-    <div class="grid grid-cols-[repeat(auto-fill,minmax(8rem,1fr))] gap-x-6 gap-y-8 pt-10 pb-16 sm:pt-11 md:pt-12">
-      {#each icons as icon}
+    <div
+      class="grid grid-cols-[repeat(auto-fill,minmax(8rem,1fr))] gap-x-6 gap-y-8 pt-10 pb-16 sm:pt-11 md:pt-12"
+      use:infiniteScrollAction={{ distance: 300, cb: loadMore }}
+    >
+      {#each paginatedIcons as icon}
         <div>
           <button class="aspect-square ring-1 ring-inset ring-gray-200 w-full rounded-xl flex items-center justify-center">
             <div class="w-6 h-6">

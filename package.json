@@ -40,6 +40,7 @@
 	"types": "./dist/index.d.ts",
 	"type": "module",
 	"dependencies": {
-		"@sveltejs/svelte-virtual-list": "^3.0.1"
+		"@sveltejs/adapter-static": "^2.0.1",
+		"svelte-legos": "^0.1.4"
 	}
 }
