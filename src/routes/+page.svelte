@@ -1,11 +1,11 @@
 <script>
 import './styles.css';
-import heroIcons from '$lib/icons-outline.json';
-import featherIcons from '$lib/feather-icons.json';
-import iconoirIcons from '$lib/iconoir-icons.json';
+import { heroIcons, iconoirIcons, featherIcons } from '$lib/icons'
 import { infiniteScrollAction } from 'svelte-legos';
-	import { tick } from 'svelte';
+import { tick } from 'svelte';
+import { matchSorter } from 'match-sorter'
 
+let query = '';
 let currentTab = 0;
 const perPage = 100;
 let currentPage = 0;
@@ -16,7 +16,10 @@ $: {
 }
 $: icons = currentTab === 0 ? heroIcons : (currentTab === 1 ? featherIcons : iconoirIcons);
 $: totalNumberOfPages = Math.ceil(icons.length / perPage)
-$: paginatedIcons = icons.slice(0, (currentPage + 1) * perPage)
+$: filteredIcons = query
+    ? matchSorter(icons, query.replace(/\s+/, '-'), { keys: ['label', 'tags'] })
+    : icons
+$: paginatedIcons = filteredIcons.slice(0, (currentPage + 1) * perPage)
 
 let isLoading = false;
 function loadMore() {
@@ -57,15 +60,12 @@ function loadMore() {
       <div>
         <button on:click={() => (currentTab = 2)} class="{currentTab === 2 ? 'text-black' : 'text-gray-300'}">Iconoir Icons ({iconoirIcons.length})</button>
       </div>
-      <div class="pointer-events-none">
-        <button class="text-gray-200">More coming soon...</button>
-      </div>
     </div>
   </div>
 
   <div class="container mx-auto">
     <div class="border-b border-t border-black">
-      <input class="w-full py-4 outline-none font-lexend font-light" placeholder="Seach for icons" />
+      <input bind:value={query} class="w-full py-4 outline-none font-lexend font-light" placeholder="Seach for icons" />
     </div>
 
     <div
