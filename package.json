@@ -40,6 +40,6 @@
 	"dependencies": {
 		"@sveltejs/adapter-static": "^2.0.1",
 		"match-sorter": "^6.3.1",
-		"svelte-legos": "^0.1.4"
+		"svelte-legos": "^0.1.5"
 	}
 }
