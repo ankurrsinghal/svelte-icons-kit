@@ -12,6 +12,8 @@ import { fade } from 'svelte/transition';
 import FileSaver from "file-saver";
 import JSZip from "jszip";
 	import LoaderSpin from './LoaderSpin.svelte';
+	import TwitterIcon from './TwitterIcon.svelte';
+	import GithubIcon from './GithubIcon.svelte';
 
 let query = '';
 let currentTab = 0;
@@ -113,8 +115,26 @@ $: isDownloadButtonVisible = Object.values($store).some(Boolean)
 
 <div class="font-lexend">
   <header class="container mx-auto">
-    <div class="my-10">
+    <div class="my-10 flex items-start">
       <h1 class="text-8xl font-extralight leading-snug">Svelte Icons<br /><span class="text-prime">Kit</span></h1>
+      <div class="ml-auto flex space-x-5 mt-5">
+        <a
+          href="https://www.twitter.com/ankurpsinghal"
+          class="text-sm flex items-center justify-center rounded-full bg-[#1D9BF0] text-white py-2 px-6 shadow-lg transition-all hover:bg-[#1A8CD8]"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <TwitterIcon size={20} />
+        </a>
+        <a
+          href="https://github.com/ankurrsinghal/svelte-icons-kit"
+          class="text-sm flex items-center justify-center rounded-full bg-gray-700 text-white py-2 px-6 shadow-lg transition-all hover:bg-black"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <GithubIcon size={20} />
+        </a>
+      </div>
     </div>
   </header>
 
