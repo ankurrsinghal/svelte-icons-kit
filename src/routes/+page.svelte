@@ -1,11 +1,17 @@
 <script lang="ts">
 import './styles.css';
-import { heroIcons, iconoirIcons, featherIcons } from '$lib/icons'
+import { heroIcons, iconoirIcons, featherIcons, type Icon, heroIconsMap, featherIconsMap, iconoirIconsMap } from '$lib/icons'
 import { clickToCopyAction, infiniteScrollAction, messagesStore, tooltipAction } from 'svelte-legos';
 import { tick } from 'svelte';
 import { matchSorter } from 'match-sorter'
 import { getComponent, getTSComponent } from '$lib/svgToPath';
-import CopyIcon from './CopyIcon.svelte';
+import { store } from '$lib/selection-store';
+import SelectButton from './SelectButton.svelte';
+import DownloadIcon from './DownloadIcon.svelte';
+import { fade } from 'svelte/transition';
+import FileSaver from "file-saver";
+import JSZip from "jszip";
+	import LoaderSpin from './LoaderSpin.svelte';
 
 let query = '';
 let currentTab = 0;
@@ -36,6 +42,10 @@ function loadMore() {
   });
 }
 
+function snakeCaseToCamelCase(label: string) {
+  return label.split('-').map(str => str[0].toUpperCase() + str.slice(1)).join('');
+}
+
 function handleCopyDone() {
   messagesStore('Copied!')
 }
@@ -48,6 +58,51 @@ function copyTSComponent(svg: string) {
   return getTSComponent(svg);
 }
 
+function handleSelect(isSelected: boolean, type: string, icon: Icon) {
+  // if (isSelected) {
+  //   $store.set(icon.id, icon);
+  //   store.set($store);
+  // } else {
+  //   if ($store.has(icon.id)) {
+  //     $store.delete(icon.id);
+  //     store.set($store);
+  //   }
+  // }
+}
+
+let isDownloading = false;
+
+function handleDownload() {
+  if (isDownloading) return;
+  isDownloading = true;
+
+  setTimeout(() => {
+    const zip = new JSZip();
+    Object.keys($store).forEach(key => {
+      const keySplit = key.split('_');
+      const type = keySplit[0];
+      const collection = keySplit[1];
+      const iconName = keySplit[2];
+
+      const collectionMap = collection === 'hero' ? heroIconsMap : (collection === 'feather' ? featherIconsMap : iconoirIconsMap);
+      if (type === 'component') {
+        zip.file(snakeCaseToCamelCase(iconName) + 'Icon.svelte', getComponent(collectionMap.get(iconName)?.svg!));
+      } else if (type === 'tscomponent') {
+        zip.file(snakeCaseToCamelCase(iconName)+ 'TS' + 'Icon.svelte', getTSComponent(collectionMap.get(iconName)?.svg!));
+      } else {
+        zip.file(iconName + '.svg', collectionMap.get(iconName)?.svg!);
+      }
+    });
+
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+      return FileSaver.saveAs(content, `svelte-icons-kit.zip`);
+    }).finally(() => {
+      isDownloading = false;
+    })
+  }, 1000);
+}
+
+$: isDownloadButtonVisible = Object.values($store).some(Boolean)
 </script>
 
 <svelte:head>
@@ -94,20 +149,29 @@ function copyTSComponent(svg: string) {
             </div>
 
             <div class="hidden absolute inset-0 group-hover:flex flex-col text-[11px] bg-white border border-black rounded-xl">
-              <button on:copy-done={handleCopyDone} class="flex-1 hover:bg-black hover:text-white flex space-x-1 px-4 items-center" use:clickToCopyAction={() => copyComponent(icon.svg)}>
-                <span><CopyIcon /></span>
-                <span>.svelte</span>
-              </button>
+              <SelectButton
+                id={icon.id}
+                onCopy={() => copyComponent(icon.svg)}
+                onCopyDone={handleCopyDone}
+                label=".svelte"
+                type="component"
+              />
               <hr />
-              <button on:copy-done={handleCopyDone} class="flex-1 hover:bg-black hover:text-white flex space-x-1 px-4 items-center" use:clickToCopyAction={() => copyTSComponent(icon.svg)}>
-                <span><CopyIcon /></span>
-                <span>.svelte (ts)</span>
-              </button>
+              <SelectButton
+                id={icon.id}
+                onCopy={() => copyTSComponent(icon.svg)}
+                onCopyDone={handleCopyDone}
+                label=".svelte (ts)"
+                type="tscomponent"
+              />
               <hr />
-              <button on:copy-done={handleCopyDone} class="flex-1 hover:bg-black hover:text-white flex space-x-1 px-4 items-center" use:clickToCopyAction={icon.svg}>
-                <span><CopyIcon /></span>
-                <span>.svg</span>
-              </button>
+              <SelectButton
+                id={icon.id}
+                onCopy={() => icon.svg}
+                onCopyDone={handleCopyDone}
+                label=".svg"
+                type="svg"
+              />
             </div>
           </button>
           <div class="mt-3 truncate text-center text-[11px] leading-6 text-slate-500 font-light" title={icon.label}>
@@ -117,4 +181,16 @@ function copyTSComponent(svg: string) {
       {/each}
     </div>
   </div>
+
+  {#if isDownloadButtonVisible}
+    <div transition:fade class="fixed bottom-8 right-8">
+      <button on:click={handleDownload} style:pointer-events={ isDownloading ? 'none' : 'all' } class="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center">
+        {#if isDownloading}
+          <LoaderSpin />
+        {:else}
+          <DownloadIcon size={20} strokeWidth={2} />
+        {/if}
+      </button>
+    </div>
+  {/if}
 </div>

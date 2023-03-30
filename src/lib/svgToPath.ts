@@ -5,6 +5,7 @@ export function getComponent(svg: string) {
   return `<script>
     export let size = 'medium';
     export let stroke = 'currentColor';
+    export let strokeWidth = 1.5;
     export let className = '';
 
     const defaultSize = 24;
@@ -24,7 +25,7 @@ export function getComponent(svg: string) {
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
-    stroke-width="1.5"
+    stroke-width={strokeWidth}
     width={dimension}
     height={dimension}
   >${path}</svg>
@@ -39,6 +40,7 @@ export function getTSComponent(svg: string) {
     type IconSize = 'small' | 'medium' | 'large' | number;
     export let size: IconSize = 'medium';
     export let stroke: string = 'currentColor';
+    export let strokeWidth: number = 1.5;
     export const className: string = '';
 
     const defaultSize = 24;
@@ -58,7 +60,7 @@ export function getTSComponent(svg: string) {
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
-    stroke-width="1.5"
+    stroke-width={strokeWidth}
     width={dimension}
     height={dimension}
   >${path}</svg>
