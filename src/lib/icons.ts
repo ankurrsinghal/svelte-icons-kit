@@ -1,6 +1,8 @@
 import HeroIcons from './icons-outline.json';
 import FeatherIcons from './feather-icons.json';
 import IconoirIcons from './iconoir-icons.json';
+import StreamlineIcons from './streamlin-icons.json';
+import AkarIcons from './akar-icons.json';
 import HeroIconsTags from './hero-tags.json';
 import FeatherIconsTags from './feather-tags.json';
 import IconoirIconsTags from './iconoir-tags.json';
@@ -23,6 +25,8 @@ function createMap<T>(arr: T[], key: keyof T) {
 export const heroIcons: Icon[] = HeroIcons.map(icon => ({ ...icon, tags: HeroIconsTags[icon.label] ?? [], id: 'hero_' + icon.label, collection: 'hero' }));
 export const featherIcons: Icon[] = FeatherIcons.map(icon => ({ ...icon, tags: FeatherIconsTags[icon.label] ?? [], id: 'feather_' + icon.label, collection: 'feather' }));
 export const iconoirIcons: Icon[] = IconoirIcons.map(icon => ({ ...icon, tags: IconoirIconsTags[icon.label] ?? [], id: 'iconoir_' + icon.label, collection: 'iconoir' }));
+export const streamLineIcons: Icon[] = StreamlineIcons.map(icon => ({ ...icon, tags: IconoirIconsTags[icon.label] ?? [], id: 'streamline_' + icon.label, collection: 'streamline' }));
+export const akarIcons: Icon[] = AkarIcons.map(icon => ({ ...icon, tags: IconoirIconsTags[icon.label] ?? [], id: 'akar_' + icon.label, collection: 'akar' }));
 
 export const heroIconsMap = createMap(heroIcons, 'label');
 export const featherIconsMap = createMap(featherIcons, 'label');

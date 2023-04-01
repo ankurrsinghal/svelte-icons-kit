@@ -1,6 +1,6 @@
 <script lang="ts">
 import './styles.css';
-import { heroIcons, iconoirIcons, featherIcons, type Icon, heroIconsMap, featherIconsMap, iconoirIconsMap } from '$lib/icons'
+import { heroIcons, iconoirIcons, featherIcons, type Icon, heroIconsMap, featherIconsMap, iconoirIconsMap, streamLineIcons, akarIcons } from '$lib/icons'
 import { clickToCopyAction, infiniteScrollAction, messagesStore, tooltipAction } from 'svelte-legos';
 import { tick } from 'svelte';
 import { matchSorter } from 'match-sorter'
@@ -14,17 +14,34 @@ import JSZip from "jszip";
 	import LoaderSpin from './LoaderSpin.svelte';
 	import TwitterIcon from './TwitterIcon.svelte';
 	import GithubIcon from './GithubIcon.svelte';
+	import CreditsInfo from './CreditsInfo.svelte';
 
 let query = '';
-let currentTab = 0;
 const perPage = 100;
 let currentPage = 0;
+
+interface Tab {
+  id: number;
+  title: string;
+  link: string;
+  icons: Icon[];
+}
+
+const tabs: Tab[] = [
+  { id: 0, title: 'Hero Icons', link: 'https://heroicons.com/', icons: heroIcons },
+  { id: 1, title: 'Feather Icons', link: 'https://feathericons.com/', icons: featherIcons },
+  { id: 2, title: 'Iconoir Icons', link: 'https://iconoir.com/', icons: iconoirIcons },
+  { id: 3, title: 'Streamline Icons', link: 'https://www.streamlinehq.com/', icons: streamLineIcons },
+  { id: 4, title: 'Akar Icons', link: 'https://akaricons.com/', icons: akarIcons },
+]
+
+let currentTab: Tab = tabs[0];
 
 $: {
   currentTab;
   currentPage = 0;
 }
-$: icons = currentTab === 0 ? heroIcons : (currentTab === 1 ? featherIcons : iconoirIcons);
+$: icons = currentTab.icons;
 $: totalNumberOfPages = Math.ceil(icons.length / perPage)
 $: filteredIcons = query
     ? matchSorter(icons, query.replace(/\s+/, '-'), { keys: ['label', 'tags'] })
@@ -58,18 +75,6 @@ function copyComponent(svg: string) {
 
 function copyTSComponent(svg: string) {
   return getTSComponent(svg);
-}
-
-function handleSelect(isSelected: boolean, type: string, icon: Icon) {
-  // if (isSelected) {
-  //   $store.set(icon.id, icon);
-  //   store.set($store);
-  // } else {
-  //   if ($store.has(icon.id)) {
-  //     $store.delete(icon.id);
-  //     store.set($store);
-  //   }
-  // }
 }
 
 let isDownloading = false;
@@ -140,15 +145,11 @@ $: isDownloadButtonVisible = Object.values($store).some(Boolean)
 
   <div class="container mx-auto my-8">
     <div class="flex space-x-6">
-      <div>
-        <button on:click={() => (currentTab = 0)} class="{currentTab === 0 ? 'text-black' : 'text-gray-300'}">Hero Icons ({heroIcons.length})</button>
-      </div>
-      <div>
-        <button on:click={() => (currentTab = 1)} class="{currentTab === 1 ? 'text-black' : 'text-gray-300'}">Feather Icons ({featherIcons.length})</button>
-      </div>
-      <div>
-        <button on:click={() => (currentTab = 2)} class="{currentTab === 2 ? 'text-black' : 'text-gray-300'}">Iconoir Icons ({iconoirIcons.length})</button>
-      </div>
+      {#each tabs as tab}
+        <div>
+          <button on:click={() => (currentTab = tab)} class="{currentTab === tab ? 'text-black' : 'text-gray-300'}">{tab.title} ({tab.icons.length})</button>
+        </div>  
+      {/each}
     </div>
   </div>
 
@@ -156,7 +157,11 @@ $: isDownloadButtonVisible = Object.values($store).some(Boolean)
     <div class="border-b border-t border-black">
       <input bind:value={query} class="w-full py-4 outline-none font-lexend font-light" placeholder="Seach for icons" />
     </div>
-
+    <div>
+      <CreditsInfo>
+        <a href={currentTab.link} class="text-gray-900" target="_blank" rel="noreferrer">{currentTab.title}</a>
+      </CreditsInfo>
+    </div>
     <div
       class="grid grid-cols-[repeat(auto-fill,minmax(8rem,1fr))] gap-x-6 gap-y-8 pt-10 pb-16 sm:pt-11 md:pt-12"
       use:infiniteScrollAction={{ distance: 300, cb: loadMore }}
